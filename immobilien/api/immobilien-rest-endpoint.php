@@ -5,11 +5,11 @@
  * REST API: Immobilien Endpunkte
  * ============================================================
  *
- * Namespace: immo/v1
+ * Namespace: km/v1
  *
  * Endpunkte:
- *  - GET /wp-json/immo/v1/immobilien
- *  - GET /wp-json/immo/v1/immobilien/{id}
+ *  - GET /wp-json/km/v1/immobilien
+ *  - GET /wp-json/km/v1/immobilien/{id}
  *
  * Zweck:
  *  - Immobilien als JSON ausgeben (Liste + Single)
@@ -31,13 +31,13 @@ add_action('rest_api_init', function () {
 
     /**
      * --------------------------------------------------------
-     * LISTE: GET /wp-json/immo/v1/immobilien
+     * LISTE: GET /wp-json/km/v1/immobilien
      * --------------------------------------------------------
      *
      * Beispiel:
-     *  /wp-json/immo/v1/immobilien?per_page=10&page=1&search=haus
+     *  /wp-json/km/v1/immobilien?per_page=10&page=1&search=haus
      */
-    register_rest_route('immo/v1', '/immobilien', [
+    register_rest_route('km/v1', '/immobilien', [
         // HTTP Methode
         'methods'  => 'GET',
 
@@ -70,7 +70,7 @@ add_action('rest_api_init', function () {
 
     /**
      * --------------------------------------------------------
-     * SINGLE: GET /wp-json/immo/v1/immobilien/{id}
+     * SINGLE: GET /wp-json/km/v1/immobilien/{id}
      * --------------------------------------------------------
      *
      * (?P<id>\d+) ist ein Regex:
@@ -78,9 +78,9 @@ add_action('rest_api_init', function () {
      *  - \d+ = nur Zahlen erlaubt
      *
      * Beispiel:
-     *  /wp-json/immo/v1/immobilien/123
+     *  /wp-json/km/v1/immobilien/123
      */
-    register_rest_route('immo/v1', '/immobilien/(?P<id>\d+)', [
+    register_rest_route('km/v1', '/immobilien/(?P<id>\d+)', [
         'methods'  => 'GET',
         'callback' => 'km_get_immobilie',
         'permission_callback' => '__return_true',
@@ -155,7 +155,7 @@ function km_format_immobilie(\WP_Post $post): array
  * ------------------------------------------------------------
  *
  * Wird aufgerufen von:
- *  GET /wp-json/immo/v1/immobilien
+ *  GET /wp-json/km/v1/immobilien
  */
 function km_get_immobilien(\WP_REST_Request $request)
 {
@@ -204,7 +204,7 @@ function km_get_immobilien(\WP_REST_Request $request)
  * ------------------------------------------------------------
  *
  * Wird aufgerufen von:
- *  GET /wp-json/immo/v1/immobilien/{id}
+ *  GET /wp-json/km/v1/immobilien/{id}
  */
 function km_get_immobilie(\WP_REST_Request $request)
 {
