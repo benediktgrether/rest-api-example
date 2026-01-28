@@ -7,7 +7,7 @@ Ideal als **Lern- & Erweiterungsbasis** für eigene REST-Endpunkte.
 
 ## Features
 
-- Eigener REST Namespace `km/v1`
+- Eigener REST Namespace `immo/v1`
 - Immobilien **Liste & Single Endpoint**
 - Paging & Suche
 - Saubere Trennung von:
@@ -22,7 +22,7 @@ Ideal als **Lern- & Erweiterungsbasis** für eigene REST-Endpunkte.
 ### 📦 Immobilien – Liste
 
 ```
-GET /wp-json/km/v1/immobilien
+GET /wp-json/immo/v1/immobilien
 ```
 
 **Query-Parameter**
@@ -36,7 +36,7 @@ GET /wp-json/km/v1/immobilien
 **Beispiel**
 
 ```
-/wp-json/km/v1/immobilien?per_page=10&page=1&search=haus
+/wp-json/immo/v1/immobilien?per_page=10&page=1&search=haus
 ```
 
 ---
@@ -44,13 +44,13 @@ GET /wp-json/km/v1/immobilien
 ### 🏠 Immobilie – Single
 
 ```
-GET /wp-json/km/v1/immobilien/{id}
+GET /wp-json/immo/v1/immobilien/{id}
 ```
 
 **Beispiel**
 
 ```
-/wp-json/km/v1/immobilien/123
+/wp-json/immo/v1/immobilien/123
 ```
 
 ---
@@ -107,7 +107,7 @@ immobilien-rest-api/
 2. Plugin im WordPress Backend aktivieren
 3. Endpoint im Browser testen:
    ```
-   /wp-json/km/v1/immobilien
+   /wp-json/immo/v1/immobilien
    ```
 
 ---
@@ -132,5 +132,5 @@ Dieses Plugin ist bewusst **klar & übersichtlich** gehalten, um:
 
 ---
 
-**Autor:** Kopfmedia  
+**Autor:** Benedikt Grether  
 **Lizenz:** MIT
