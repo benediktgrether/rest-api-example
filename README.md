@@ -1,4 +1,4 @@
-# KM Immobilien REST API
+# Immobilien REST API
 
 Ein leichtgewichtiges WordPress-Plugin, das einen **Custom REST API Endpoint** für Immobilien bereitstellt.
 Ideal als **Lern- & Erweiterungsbasis** für eigene REST-Endpunkte.
@@ -92,8 +92,8 @@ GET /wp-json/km/v1/immobilien/{id}
 ## Plugin-Struktur
 
 ```
-km-immobilien-rest-api/
-├─ km-immobilien-rest-api.php
+immobilien-rest-api/
+├─ immobilien-rest-api.php
 └─ immobilien/
    └─ api/
       └─ immobilien-rest-endpoint.php
