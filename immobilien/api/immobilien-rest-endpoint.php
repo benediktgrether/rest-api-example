@@ -94,6 +94,109 @@ add_action('rest_api_init', function () {
     ]);
 });
 
+/**
+ * Gutenberg: Content in Blocks zerlegen (Array-Struktur)
+ */
+function km_get_gutenberg_blocks(\WP_Post $post): array
+{
+    if (!function_exists('parse_blocks')) {
+        return [];
+    }
+    return parse_blocks($post->post_content);
+}
+
+/**
+ * Blocks vereinfachen zu einem stabilen JSON-Format für dein Frontend.
+ * (Du kannst hier später weitere Blocktypen ergänzen.)
+ */
+function km_simplify_blocks(array $blocks): array
+{
+    $out = [];
+
+    foreach ($blocks as $block) {
+        $name = $block['blockName'] ?? null;
+
+        // Rekursiv verschachtelte Blöcke vereinfachen
+        $inner = !empty($block['innerBlocks'])
+            ? km_simplify_blocks($block['innerBlocks'])
+            : [];
+
+        // Unbekannt / leere Blöcke skippen (z.B. freie HTML-Kommentare)
+        if (!$name) {
+            continue;
+        }
+
+        // ----------------------------
+        // core/heading
+        // ----------------------------
+        if ($name === 'core/heading') {
+            $out[] = [
+                'type'  => 'heading',
+                'level' => (int) ($block['attrs']['level'] ?? 2),
+                'text'  => trim(wp_strip_all_tags($block['innerHTML'] ?? '')),
+                'inner' => $inner,
+            ];
+            continue;
+        }
+
+        // ----------------------------
+        // core/paragraph
+        // ----------------------------
+        if ($name === 'core/paragraph') {
+            $out[] = [
+                'type'  => 'paragraph',
+                'text'  => trim(wp_strip_all_tags($block['innerHTML'] ?? '')),
+                'inner' => $inner,
+            ];
+            continue;
+        }
+
+        // ----------------------------
+        // core/list  -> items[] aus core/list-item
+        // ----------------------------
+        if ($name === 'core/list') {
+            $ordered = (bool) ($block['attrs']['ordered'] ?? false);
+
+            $items = [];
+
+            // Gutenberg speichert Listeneinträge als innerBlocks (core/list-item)
+            foreach ($block['innerBlocks'] ?? [] as $innerBlock) {
+                if (($innerBlock['blockName'] ?? '') !== 'core/list-item') {
+                    continue;
+                }
+
+                // Text aus <li> extrahieren
+                $text = trim(wp_strip_all_tags($innerBlock['innerHTML'] ?? ''));
+
+                if ($text !== '') {
+                    $items[] = $text;
+                }
+            }
+
+            $out[] = [
+                'type'    => 'list',
+                'ordered' => $ordered,
+                'items'   => $items,
+            ];
+
+            continue;
+        }
+
+        // ----------------------------
+        // Fallback: Unbekannte Blöcke als HTML durchreichen (optional)
+        // ----------------------------
+        $out[] = [
+            'type'      => 'html',
+            'blockName' => $name,
+            'html'      => $block['innerHTML'] ?? '',
+            'attrs'     => $block['attrs'] ?? new stdClass(),
+            'inner'     => $inner,
+        ];
+    }
+
+    return $out;
+}
+
 
 /**
  * ------------------------------------------------------------
@@ -109,13 +212,20 @@ function km_format_immobilie(\WP_Post $post): array
 {
     $post_id = (int) $post->ID;
 
+    // Gutenberg Blocks lesen + vereinfachen
+    $raw_blocks = km_get_gutenberg_blocks($post);
+    $blocks     = km_simplify_blocks($raw_blocks);
+
+    // Optional: zusätzlich "plain text" Kurzbeschreibung fürs Listing
+    $beschreibung_plain = wp_strip_all_tags(apply_filters('the_content', $post->post_content));
+
     /**
      * Beschreibung:
      * - kommt aus dem Editor (post_content)
      * - apply_filters('the_content') wendet WP-Filter an
      *   (Shortcodes, Blocks, etc.)
      */
-    $beschreibung = apply_filters('the_content', $post->post_content);
+    // $beschreibung = apply_filters('the_content', $post->post_content);
 
     /**
      * Post Meta Felder
@@ -134,8 +244,16 @@ function km_format_immobilie(\WP_Post $post): array
         'id'           => $post_id,
         'title'        => get_the_title($post_id),
 
+        // Für Listen-Übersicht (optional behalten)
+        'beschreibung' => $beschreibung_plain,
+
+        // NEU: strukturierter Content (Frontend kann Komponenten rendern)
+        'content' => [
+            'blocks' => $blocks,
+        ],
+
         // HTML entfernen → reiner Text
-        'beschreibung' => wp_strip_all_tags($beschreibung),
+        // 'beschreibung' => wp_strip_all_tags($beschreibung),
 
         // Typen sauber casten + null bei leeren Werten
         'kaufpreis'    => $kaufpreis !== '' ? (float) $kaufpreis : null,
